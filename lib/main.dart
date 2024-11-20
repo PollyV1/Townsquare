@@ -12,27 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(393, 852),
+      designSize: const Size(375, 812), // Adjust to your design's dimensions
+      minTextAdapt: true,
       builder: (context, child) {
         return MaterialApp(
-          debugShowCheckedModeBanner: false, // Remove debug banner
-          theme: ThemeData.light().copyWith(
-            scaffoldBackgroundColor: Colors.white, // Set light mode background
-            appBarTheme: const AppBarTheme(
-              backgroundColor:
-                  Colors.transparent, // Transparent AppBar for light mode
-              elevation: 0,
-            ),
-          ),
-          darkTheme: ThemeData.dark().copyWith(
-            scaffoldBackgroundColor: Colors.black, // Set dark mode background
-            appBarTheme: const AppBarTheme(
-              backgroundColor:
-                  Colors.transparent, // Transparent AppBar for dark mode
-              elevation: 0,
-            ),
-          ),
-          themeMode: ThemeMode.system, // Switch between light and dark modes
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.system, // Automatically use system theme
           home: const HomePage(),
         );
       },

@@ -1,52 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:townsquare/Constants/AppColor.dart';
+import 'package:townsquare/Constants/sample_data.dart';
+import 'package:townsquare/Reusable%20Widgets/Activities_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> categories = ['All', 'Sports', 'Food', 'Kids', 'Creative'];
-
-  final List<Map<String, dynamic>> activities = [
-    {
-      'title': 'Beach Yoga',
-      'time': '08:00 (60 min)',
-      'location': 'La Playa de la Rada',
-      'price': '9€',
-      'spots': '8 spots left',
-      'intensity': 'Light',
-      'available': true,
-    },
-    {
-      'title': 'Reformer Pilates',
-      'time': '09:00 (60 min)',
-      'location': 'Wellness Studio',
-      'price': '15€',
-      'spots': '3 spots left',
-      'intensity': 'Medium',
-      'available': true,
-    },
-    {
-      'title': '5-a-side Football',
-      'time': '12:30 (45 min)',
-      'location': 'Municipal Sports Center',
-      'price': '19€',
-      'spots': 'Sold Out',
-      'intensity': 'High',
-      'available': false,
-    },
-  ];
-
   int selectedCategoryIndex = 0;
 
+  late Map<String, List<Map<String, dynamic>>> groupedActivities;
   @override
   Widget build(BuildContext context) {
+    final isDarkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
+
+    // Update System UI Overlay Style based on theme
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            isDarkMode ? Brightness.light : Brightness.dark,
+      ),
+    );
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: PreferredSize(
@@ -90,6 +74,15 @@ class _HomePageState extends State<HomePage> {
                 padding: EdgeInsets.only(top: 10.h),
                 child: Row(
                   children: [
+                    // IconButton(
+                    //   icon: Icon(
+                    //     widget.toggleTheme == ThemeMode.light
+                    //         ? Icons.dark_mode
+                    //         : Icons.light_mode,
+                    //     size: 24.sp,
+                    //   ),
+                    //   onPressed: widget.toggleTheme,
+                    // ),
                     IconButton(
                       icon:
                           Icon(Icons.notifications_none_outlined, size: 24.sp),
@@ -317,7 +310,7 @@ class _HomePageState extends State<HomePage> {
                       itemCount: categories.length,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
@@ -337,9 +330,8 @@ class _HomePageState extends State<HomePage> {
                                 child: Text(
                                   categories[index],
                                   style: TextStyle(
-                                    color: selectedCategoryIndex == index
-                                        ? Colors.white
-                                        : Colors.black,
+                                    fontSize: 12.sp,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ),
@@ -348,70 +340,30 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     ),
-                  ),
+                  )
                 ],
               ),
-            ), // Activities List
+            ),
+            // Activities List
             Expanded(
               child: ListView.builder(
                 itemCount: activities.length,
                 itemBuilder: (context, index) {
                   final activity = activities[index];
-                  return Container(
-                    margin:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          activity['title'],
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(activity['time']),
-                        SizedBox(height: 4.h),
-                        Text(activity['location']),
-                        SizedBox(height: 8.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(activity['spots']),
-                            Text(
-                              activity['intensity'],
-                              style: TextStyle(
-                                color: activity['intensity'] == 'High'
-                                    ? Colors.red
-                                    : Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(activity['price']),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        ElevatedButton(
-                          onPressed: activity['available'] ? () {} : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: activity['available']
-                                ? Colors.blue
-                                : Colors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16.r),
-                            ),
-                          ),
-                          child:
-                              Text(activity['available'] ? "Join" : "Sold Out"),
-                        ),
-                      ],
-                    ),
+                  return ActivityCard(
+                    title: activity['title'],
+                    time: activity['time'],
+                    location: activity['location'],
+                    spots: activity['spots'],
+                    intensity: activity['intensity'],
+                    price: activity['price'],
+                    available: activity['available'],
+                    childcare: activity['childcare'],
+                    onJoinPressed: activity['available']
+                        ? () {
+                            // Handle join logic here
+                          }
+                        : null,
                   );
                 },
               ),
@@ -423,7 +375,13 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: ""),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.add_circle,
+                size: 35,
+                color: Colors.blue,
+              ),
+              label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
         ],
